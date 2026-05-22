@@ -64,7 +64,15 @@ The interface contract implies a fully populated `Document` is returned. The bro
 ---
 
 ### Violation 3 — Broken invariant
+**File:** `MutableDocument.java`
 
+`Document` guarantees immutability after construction. The broken version subclasses it to add a `setAttribute()` method, allowing records to be silently corrupted after import.
+
+| | Broken | Fixed |
+|---|---|---|
+| Invariant | Mutability introduced via subclass | Immutability preserved; new state = new object |
+| Symptom | Two references to same object return different values | Object state never changes after construction |
+ 
 ---
 
 ### Violation 4 — History rule
