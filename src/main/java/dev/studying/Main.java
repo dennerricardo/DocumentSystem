@@ -1,6 +1,7 @@
 package dev.studying;
 
 import java.io.File;
+import java.util.Map;
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -27,20 +28,34 @@ public class Main {
 //        System.out.println("\nFile name length: "+ path.length());
 
 
-        Importer importer = new BadReportImporter();
+//        Importer importer = new BadReportImporter();
+//
+//        // The caller receives what looks like a normal Document
+//        Document doc = importer.importFile(new File("annual-checkup.report"));
+//        System.out.println("Before: " + doc.getAttribute("patient"));
+//
+//        // But if someone downstream holds a MutableDocument reference...
+//        MutableDocument mutable = (MutableDocument) doc; // compiles!
+//        mutable.setAttribute("patient", "TAMPERED");
+//
+//        // Now any OTHER code holding the same Document reference sees corrupted data
+//        System.out.println("After:  " + doc.getAttribute("patient"));
+//
+//        // The invariant — records are permanent once imported — is broken.
+//        // Multiple parts of the system now disagree on what the patient's name is
+//        .
 
-        // The caller receives what looks like a normal Document
-        Document doc = importer.importFile(new File("annual-checkup.report"));
-        System.out.println("Before: " + doc.getAttribute("patient"));
+        VerifiedDocument unverified = new VerifiedDocument(
+                Map.of("type", "LETTER", "path", "/records/jane.letter", "patient", "jane")
+        );
+        System.out.println("Verified: " + unverified.isVerified()); // false
 
-        // But if someone downstream holds a MutableDocument reference...
-        MutableDocument mutable = (MutableDocument) doc; // compiles!
-        mutable.setAttribute("patient", "TAMPERED");
+        // Verification produces a NEW document. The old one is unchanged.
+        VerifiedDocument verified = unverified.asVerified();
+        System.out.println("Old doc:  " + unverified.isVerified()); // still false — unchanged
+        System.out.println("New doc:  " + verified.isVerified());   // true
 
-        // Now any OTHER code holding the same Document reference sees corrupted data
-        System.out.println("After:  " + doc.getAttribute("patient"));
-
-        // The invariant — records are permanent once imported — is broken.
-        // Multiple parts of the system now disagree on what the patient's name is.
+        // ✅ There is no unverify(). The transition is one-way by design.
+        // The history of each object is permanently coherent.
     }
 }
